@@ -336,7 +336,7 @@ function AgentInfoSection({ activeAgentId }: { activeAgentId: string | null }) {
           <Separator orientation="vertical" className="h-4 hidden sm:block" />
           <span className="text-xs text-muted-foreground font-mono">{AGENT_ID}</span>
           <Separator orientation="vertical" className="h-4 hidden sm:block" />
-          <span className="text-xs text-muted-foreground">Generates VeloDB & Lyzr branded certificates and emails them to participants</span>
+          <span className="text-xs text-muted-foreground">Generates VeloDB &amp; Lyzr branded certificates and emails them to participants</span>
           {activeAgentId && (
             <>
               <Separator orientation="vertical" className="h-4 hidden sm:block" />
@@ -759,7 +759,7 @@ export default function Page() {
               </div>
               <div>
                 <h1 className="text-lg font-semibold tracking-tight text-foreground">CertiFlow AI</h1>
-                <p className="text-xs text-muted-foreground">Automated Certificate Generation & Management</p>
+                <p className="text-xs text-muted-foreground">Automated Certificate Generation &amp; Management</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -807,7 +807,7 @@ export default function Page() {
                     Issue New Certificate
                   </CardTitle>
                   <CardDescription>
-                    Fill in the participant details below. The AI agent will generate a personalized VeloDB & Lyzr branded certificate with an appreciation message and email it directly to the participant.
+                    Fill in the participant details below. The AI agent will generate a personalized VeloDB &amp; Lyzr branded certificate with an appreciation message and email it directly to the participant.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-5">
@@ -909,12 +909,12 @@ export default function Page() {
                     {isSubmitting ? (
                       <>
                         <HiOutlineArrowPath className="w-4 h-4 animate-spin" />
-                        Generating & Emailing Certificate...
+                        Generating &amp; Emailing Certificate...
                       </>
                     ) : (
                       <>
                         <TbCertificate className="w-4 h-4" />
-                        Generate & Email VeloDB & Lyzr Certificate
+                        Generate &amp; Email VeloDB &amp; Lyzr Certificate
                       </>
                     )}
                   </Button>
@@ -933,7 +933,7 @@ export default function Page() {
                             <TbCertificate className="w-7 h-7" />
                           </div>
                           <div>
-                            <h3 className="text-lg font-semibold tracking-tight">VeloDB & Lyzr</h3>
+                            <h3 className="text-lg font-semibold tracking-tight">VeloDB &amp; Lyzr</h3>
                             <p className="text-emerald-100 text-xs">Certificate of Appreciation</p>
                           </div>
                         </div>
@@ -1039,7 +1039,7 @@ export default function Page() {
                       >
                         <HiOutlineCloudArrowUp className="w-10 h-10 mx-auto text-muted-foreground mb-3" />
                         <p className="text-sm text-muted-foreground mb-2">
-                          Drag & drop your CSV file here, or click to browse
+                          Drag &amp; drop your CSV file here, or click to browse
                         </p>
                         <input
                           type="file"
@@ -1298,7 +1298,7 @@ export default function Page() {
                                         <>
                                           <span className="flex items-center gap-1 text-emerald-600">
                                             <HiOutlineEnvelope className="w-3 h-3" />
-                                            VeloDB & Lyzr certificate emailed to {record.email_sent_to}
+                                            VeloDB &amp; Lyzr certificate emailed to {record.email_sent_to}
                                           </span>
                                           <Separator orientation="vertical" className="h-3" />
                                         </>
@@ -1422,7 +1422,7 @@ export default function Page() {
                         <div className="bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 px-5 py-3 text-white">
                           <div className="flex items-center gap-2">
                             <TbCertificate className="w-5 h-5" />
-                            <span className="font-semibold text-sm">VeloDB & Lyzr Certificate</span>
+                            <span className="font-semibold text-sm">VeloDB &amp; Lyzr Certificate</span>
                           </div>
                         </div>
                         <div className="p-5 space-y-4">
@@ -1447,7 +1447,7 @@ export default function Page() {
                             </div>
                             <div className="bg-white/70 rounded-lg p-3">
                               <p className="text-xs text-emerald-600 font-medium uppercase tracking-wider mb-0.5">Issued By</p>
-                              <p className="text-sm font-semibold text-emerald-900">VeloDB & Lyzr</p>
+                              <p className="text-sm font-semibold text-emerald-900">VeloDB &amp; Lyzr</p>
                             </div>
                           </div>
                           {verifyResult.status === 'success' && verifyResult.appreciation_message && (
