@@ -1,0 +1,16 @@
+{
+  "agent_name": "Certificate Message Agent",
+  "agent_type": "json",
+  "accessor": "json",
+  "has_module_outputs": false,
+  "schema": {
+    "appreciation_message": "string - The personalized appreciation message for the certificate",
+    "participant_name": "string - The participant name that was processed",
+    "event_name": "string - The event name referenced in the message"
+  },
+  "sample_response": {
+    "appreciation_message": "We proudly recognize John Smith for their outstanding participation in the AI Innovation Hackathon 2026. Their dedication and contributions have exemplified the spirit of innovation and collaboration that defines this event.",
+    "participant_name": "John Smith",
+    "event_name": "AI Innovation Hackathon 2026"
+  }
+}

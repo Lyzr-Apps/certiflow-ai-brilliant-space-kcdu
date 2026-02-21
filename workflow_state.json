@@ -1,0 +1,11 @@
+{
+  "agents": {
+    "certificate_message_agent": {
+      "agent_id": "69996d91cf2aa167c0547540",
+      "name": "Certificate Message Agent",
+      "model": "gpt-4.1",
+      "provider": "openai",
+      "has_gmail": true
+    }
+  }
+}

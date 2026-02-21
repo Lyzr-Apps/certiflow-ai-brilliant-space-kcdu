@@ -1,0 +1,18 @@
+{
+  "agent_name": "Certificate Message Agent",
+  "agent_id": "69996d91cf2aa167c0547540",
+  "description": "Generates a short, formal, personalized appreciation message (under 60 words) for each participant, including their name, event name, and completion recognition. Varies tone slightly across submissions to avoid repetition.",
+  "agent_type": "json",
+  "accessor": "result",
+  "auto_generated": true,
+  "response_schema": {
+    "appreciation_message": "string",
+    "participant_name": "string",
+    "event_name": "string"
+  },
+  "example_response": {
+    "appreciation_message": "The personalized appreciation message for the certificate",
+    "participant_name": "The participant name that was processed",
+    "event_name": "The event name referenced in the message"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "nodes": [
+    {"id": "input_node", "type": "Input", "label": "Form Submission Data", "nodeCategory": "input"},
+    {"id": "certificate_agent", "type": "Agent", "label": "Certificate Message Agent", "nodeCategory": "agent"},
+    {"id": "output_node", "type": "Output", "label": "Certificate Output", "nodeCategory": "end"}
+  ],
+  "edges": [
+    {"source": "input_node", "target": "certificate_agent"},
+    {"source": "certificate_agent", "target": "output_node"}
+  ]
+}
