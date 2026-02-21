@@ -6,11 +6,13 @@
   "schema": {
     "appreciation_message": "string - The personalized appreciation message for the certificate",
     "participant_name": "string - The participant name that was processed",
-    "event_name": "string - The event name referenced in the message"
+    "event_name": "string - The event name referenced in the message",
+    "email_sent_to": "string - The email address the certificate was sent to"
   },
   "sample_response": {
     "appreciation_message": "We proudly recognize John Smith for their outstanding participation in the AI Innovation Hackathon 2026. Their dedication and contributions have exemplified the spirit of innovation and collaboration that defines this event.",
     "participant_name": "John Smith",
-    "event_name": "AI Innovation Hackathon 2026"
+    "event_name": "AI Innovation Hackathon 2026",
+    "email_sent_to": "john@example.com"
   }
 }

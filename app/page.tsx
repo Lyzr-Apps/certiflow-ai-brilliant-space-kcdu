@@ -15,7 +15,7 @@ import { Separator } from '@/components/ui/separator'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { HiOutlineDocumentText, HiOutlineCloudArrowUp, HiOutlineCheckCircle, HiOutlineXCircle, HiOutlineClock, HiOutlineMagnifyingGlass, HiOutlineArrowDownTray, HiOutlineShieldCheck, HiOutlineChevronDown, HiOutlineChevronUp, HiOutlineArrowPath } from 'react-icons/hi2'
+import { HiOutlineDocumentText, HiOutlineCloudArrowUp, HiOutlineCheckCircle, HiOutlineXCircle, HiOutlineClock, HiOutlineMagnifyingGlass, HiOutlineArrowDownTray, HiOutlineShieldCheck, HiOutlineChevronDown, HiOutlineChevronUp, HiOutlineArrowPath, HiOutlineEnvelope } from 'react-icons/hi2'
 import { HiOutlineClipboardCheck } from 'react-icons/hi'
 import { TbCertificate } from 'react-icons/tb'
 
@@ -34,6 +34,7 @@ interface IssuanceRecord {
   appreciation_message: string
   timestamp: string
   retries: number
+  email_sent_to: string
 }
 
 interface FormData {
@@ -55,6 +56,7 @@ const SAMPLE_RECORDS: IssuanceRecord[] = [
     appreciation_message: 'We proudly recognize Alice Johnson for her outstanding participation in the AI Innovation Hackathon 2026. Her dedication and innovative contributions have exemplified the spirit of excellence that defines this event.',
     timestamp: '2026-02-15T10:30:00.000Z',
     retries: 0,
+    email_sent_to: 'alice.johnson@example.com',
   },
   {
     certificate_id: 'CERT-2026-002',
@@ -66,6 +68,7 @@ const SAMPLE_RECORDS: IssuanceRecord[] = [
     appreciation_message: 'It is with great pleasure that we honor Bob Martinez for his remarkable engagement in the Cloud Architecture Summit. His insightful contributions and commitment to learning have left a lasting impression on all attendees.',
     timestamp: '2026-02-16T14:22:00.000Z',
     retries: 0,
+    email_sent_to: 'bob.martinez@example.com',
   },
   {
     certificate_id: 'CERT-2026-003',
@@ -77,6 +80,7 @@ const SAMPLE_RECORDS: IssuanceRecord[] = [
     appreciation_message: 'Network error during generation',
     timestamp: '2026-02-17T09:15:00.000Z',
     retries: 2,
+    email_sent_to: '',
   },
   {
     certificate_id: 'CERT-2026-004',
@@ -88,6 +92,7 @@ const SAMPLE_RECORDS: IssuanceRecord[] = [
     appreciation_message: 'We extend our heartfelt appreciation to David Chen for his exemplary performance in the Full Stack Development Workshop. His passion for technology and collaborative spirit have truly set him apart.',
     timestamp: '2026-02-18T11:45:00.000Z',
     retries: 0,
+    email_sent_to: 'david.chen@example.com',
   },
   {
     certificate_id: 'CERT-2026-005',
@@ -99,6 +104,7 @@ const SAMPLE_RECORDS: IssuanceRecord[] = [
     appreciation_message: '',
     timestamp: '2026-02-19T16:00:00.000Z',
     retries: 0,
+    email_sent_to: '',
   },
 ]
 
@@ -244,11 +250,11 @@ function downloadCSVTemplate() {
 // --- Helper: Export records as CSV ---
 function exportRecordsCSV(records: IssuanceRecord[]) {
   if (!Array.isArray(records) || records.length === 0) return
-  const headers = 'Certificate ID,Name,Email,Event,Date,Status,Appreciation Message,Timestamp,Retries\n'
+  const headers = 'Certificate ID,Name,Email,Event,Date,Status,Appreciation Message,Email Sent To,Timestamp,Retries\n'
   const rows = records
     .map(
       (r) =>
-        `"${r.certificate_id}","${r.name}","${r.email}","${r.event}","${r.date}","${r.status}","${(r.appreciation_message || '').replace(/"/g, '""')}","${r.timestamp}","${r.retries}"`
+        `"${r.certificate_id}","${r.name}","${r.email}","${r.event}","${r.date}","${r.status}","${(r.appreciation_message || '').replace(/"/g, '""')}","${r.email_sent_to || ''}","${r.timestamp}","${r.retries}"`
     )
     .join('\n')
   const blob = new Blob([headers + rows], { type: 'text/csv' })
@@ -330,7 +336,7 @@ function AgentInfoSection({ activeAgentId }: { activeAgentId: string | null }) {
           <Separator orientation="vertical" className="h-4 hidden sm:block" />
           <span className="text-xs text-muted-foreground font-mono">{AGENT_ID}</span>
           <Separator orientation="vertical" className="h-4 hidden sm:block" />
-          <span className="text-xs text-muted-foreground">Generates personalized appreciation messages for certificates</span>
+          <span className="text-xs text-muted-foreground">Generates VeloDB & Lyzr branded certificates and emails them to participants</span>
           {activeAgentId && (
             <>
               <Separator orientation="vertical" className="h-4 hidden sm:block" />
@@ -359,6 +365,7 @@ export default function Page() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitMessage, setSubmitMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [activeAgentId, setActiveAgentId] = useState<string | null>(null)
+  const [lastIssuedRecord, setLastIssuedRecord] = useState<IssuanceRecord | null>(null)
 
   // Dashboard state
   const [searchQuery, setSearchQuery] = useState('')
@@ -445,12 +452,13 @@ export default function Page() {
         appreciation_message: '',
         timestamp: new Date().toISOString(),
         retries: 0,
+        email_sent_to: '',
       }
 
       try {
         setActiveAgentId(AGENT_ID)
         const result = await callAIAgent(
-          `Generate a personalized, formal appreciation message (under 60 words) for participant "${name}" who completed the event "${event}". Include their name and event name. Vary the tone to be unique.`,
+          `Generate a personalized, formal appreciation message (under 60 words) for participant "${name}" who completed the event "${event}" on ${date}. Certificate ID: ${certId}. Then send a VeloDB & Lyzr branded certificate email to their email address: ${email}. The email subject should be "Your VeloDB & Lyzr Certificate - ${event}". Include the participant name, event name, date, certificate ID, and appreciation message in the email body.`,
           AGENT_ID
         )
 
@@ -460,6 +468,7 @@ export default function Page() {
             agentResult?.appreciation_message ||
             result?.response?.message ||
             'Certificate of appreciation generated successfully.'
+          record.email_sent_to = agentResult?.email_sent_to || email
           record.status = 'success'
         } else {
           record.status = 'failed'
@@ -499,8 +508,9 @@ export default function Page() {
     if (record.status === 'success') {
       setSubmitMessage({
         type: 'success',
-        text: `Certificate ${record.certificate_id} generated successfully for ${record.name}.`,
+        text: `VeloDB & Lyzr Certificate ${record.certificate_id} generated and emailed to ${record.email_sent_to || record.email} for ${record.name}.`,
       })
+      setLastIssuedRecord(record)
       setFormData({ name: '', email: '', event: '', date: todayDate })
       setFormErrors({})
     } else {
@@ -528,7 +538,7 @@ export default function Page() {
       try {
         setActiveAgentId(AGENT_ID)
         const result = await callAIAgent(
-          `Generate a personalized, formal appreciation message (under 60 words) for participant "${existing.name}" who completed the event "${existing.event}". Include their name and event name. Vary the tone to be unique.`,
+          `Generate a personalized, formal appreciation message (under 60 words) for participant "${existing.name}" who completed the event "${existing.event}" on ${existing.date}. Certificate ID: ${existing.certificate_id}. Then send a VeloDB & Lyzr branded certificate email to their email address: ${existing.email}. The email subject should be "Your VeloDB & Lyzr Certificate - ${existing.event}". Include the participant name, event name, date, certificate ID, and appreciation message in the email body.`,
           AGENT_ID
         )
 
@@ -544,6 +554,7 @@ export default function Page() {
                       agentResult?.appreciation_message ||
                       result?.response?.message ||
                       'Certificate of appreciation generated successfully.',
+                    email_sent_to: agentResult?.email_sent_to || existing.email,
                     retries: r.retries + 1,
                   }
                 : r
@@ -796,7 +807,7 @@ export default function Page() {
                     Issue New Certificate
                   </CardTitle>
                   <CardDescription>
-                    Fill in the participant details below. The AI agent will generate a personalized appreciation message and the certificate will be emailed automatically.
+                    Fill in the participant details below. The AI agent will generate a personalized VeloDB & Lyzr branded certificate with an appreciation message and email it directly to the participant.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-5">
@@ -898,17 +909,92 @@ export default function Page() {
                     {isSubmitting ? (
                       <>
                         <HiOutlineArrowPath className="w-4 h-4 animate-spin" />
-                        Generating Certificate...
+                        Generating & Emailing Certificate...
                       </>
                     ) : (
                       <>
                         <TbCertificate className="w-4 h-4" />
-                        Generate & Send Certificate
+                        Generate & Email VeloDB & Lyzr Certificate
                       </>
                     )}
                   </Button>
                 </CardContent>
               </Card>
+
+              {/* --- VeloDB & Lyzr Certificate Preview --- */}
+              {lastIssuedRecord && lastIssuedRecord.status === 'success' && (
+                <Card className="backdrop-blur-[16px] bg-white/75 border border-white/[0.18] shadow-xl overflow-hidden">
+                  <div className="relative">
+                    {/* Certificate Header Band */}
+                    <div className="bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 px-6 py-5 text-white">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
+                            <TbCertificate className="w-7 h-7" />
+                          </div>
+                          <div>
+                            <h3 className="text-lg font-semibold tracking-tight">VeloDB & Lyzr</h3>
+                            <p className="text-emerald-100 text-xs">Certificate of Appreciation</p>
+                          </div>
+                        </div>
+                        <Badge className="bg-white/20 text-white border-white/30 hover:bg-white/20 gap-1.5 backdrop-blur-sm">
+                          <HiOutlineEnvelope className="w-3.5 h-3.5" />
+                          Email Sent
+                        </Badge>
+                      </div>
+                    </div>
+
+                    {/* Certificate Body */}
+                    <CardContent className="p-6 space-y-5">
+                      <div className="text-center py-4">
+                        <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-medium mb-3">This is to certify that</p>
+                        <h2 className="text-2xl font-semibold tracking-tight text-foreground font-serif">{lastIssuedRecord.name}</h2>
+                        <p className="text-sm text-muted-foreground mt-2">
+                          has successfully participated in
+                        </p>
+                        <p className="text-lg font-medium text-primary mt-1">{lastIssuedRecord.event}</p>
+                        <p className="text-sm text-muted-foreground mt-2">
+                          on {new Date(lastIssuedRecord.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                        </p>
+                      </div>
+
+                      <Separator />
+
+                      {/* Appreciation Message */}
+                      {lastIssuedRecord.appreciation_message && (
+                        <div className="bg-emerald-50/60 rounded-xl p-4 border border-emerald-100">
+                          <p className="text-sm text-foreground leading-relaxed italic text-center">
+                            &ldquo;{lastIssuedRecord.appreciation_message}&rdquo;
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Certificate Details Grid */}
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="bg-muted/30 rounded-xl p-3">
+                          <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-1">Certificate ID</p>
+                          <p className="font-mono text-sm font-semibold text-primary">{lastIssuedRecord.certificate_id}</p>
+                        </div>
+                        <div className="bg-muted/30 rounded-xl p-3">
+                          <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-1">Emailed To</p>
+                          <p className="text-sm font-medium text-foreground truncate">{lastIssuedRecord.email_sent_to || lastIssuedRecord.email}</p>
+                        </div>
+                      </div>
+
+                      {/* Footer */}
+                      <div className="flex items-center justify-between pt-2">
+                        <p className="text-[10px] text-muted-foreground">
+                          Issued by VeloDB in partnership with Lyzr
+                        </p>
+                        <Badge className="bg-emerald-600 text-white hover:bg-emerald-600 gap-1 text-[10px] px-2 py-0.5">
+                          <HiOutlineShieldCheck className="w-3 h-3" />
+                          Verified
+                        </Badge>
+                      </div>
+                    </CardContent>
+                  </div>
+                </Card>
+              )}
 
               {/* --- Bulk Upload Section --- */}
               <Collapsible open={bulkOpen} onOpenChange={setBulkOpen}>
@@ -1208,6 +1294,15 @@ export default function Page() {
                                       <Separator orientation="vertical" className="h-3" />
                                       <span>Date: {record.date}</span>
                                       <Separator orientation="vertical" className="h-3" />
+                                      {record.email_sent_to && record.status === 'success' && (
+                                        <>
+                                          <span className="flex items-center gap-1 text-emerald-600">
+                                            <HiOutlineEnvelope className="w-3 h-3" />
+                                            VeloDB & Lyzr certificate emailed to {record.email_sent_to}
+                                          </span>
+                                          <Separator orientation="vertical" className="h-3" />
+                                        </>
+                                      )}
                                       <span>Retries: {record.retries}/3</span>
                                       {record.status === 'failed' && record.retries < 3 && (
                                         <>
@@ -1322,41 +1417,51 @@ export default function Page() {
 
                     {/* Verification result: found */}
                     {verifyResult && (
-                      <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-5 space-y-4">
-                        <div className="flex items-center gap-2 mb-1">
-                          <HiOutlineCheckCircle className="w-6 h-6 text-emerald-600" />
-                          <span className="font-semibold text-emerald-800 text-lg">Certificate Verified</span>
-                        </div>
-                        <Separator className="bg-emerald-200" />
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <p className="text-xs text-emerald-600 font-medium uppercase tracking-wider mb-0.5">Certificate ID</p>
-                            <p className="font-mono text-sm font-semibold text-emerald-900">{verifyResult.certificate_id}</p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-emerald-600 font-medium uppercase tracking-wider mb-0.5">Participant</p>
-                            <p className="text-sm font-semibold text-emerald-900">{verifyResult.name}</p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-emerald-600 font-medium uppercase tracking-wider mb-0.5">Event</p>
-                            <p className="text-sm font-medium text-emerald-900">{verifyResult.event}</p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-emerald-600 font-medium uppercase tracking-wider mb-0.5">Date</p>
-                            <p className="text-sm font-medium text-emerald-900">{verifyResult.date}</p>
+                      <div className="bg-emerald-50 border border-emerald-200 rounded-xl overflow-hidden">
+                        {/* Branded header */}
+                        <div className="bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 px-5 py-3 text-white">
+                          <div className="flex items-center gap-2">
+                            <TbCertificate className="w-5 h-5" />
+                            <span className="font-semibold text-sm">VeloDB & Lyzr Certificate</span>
                           </div>
                         </div>
-                        {verifyResult.status === 'success' && verifyResult.appreciation_message && (
-                          <div className="bg-white/70 rounded-lg p-3 mt-2">
-                            <p className="text-xs text-emerald-600 font-medium uppercase tracking-wider mb-1.5">Appreciation Message</p>
-                            <p className="text-sm text-emerald-900 leading-relaxed italic">{verifyResult.appreciation_message}</p>
+                        <div className="p-5 space-y-4">
+                          <div className="flex items-center gap-2 mb-1">
+                            <HiOutlineCheckCircle className="w-6 h-6 text-emerald-600" />
+                            <span className="font-semibold text-emerald-800 text-lg">Certificate Verified</span>
                           </div>
-                        )}
-                        <div className="flex justify-center pt-1">
-                          <Badge className="bg-emerald-600 text-white hover:bg-emerald-600 gap-1.5 px-4 py-1.5 text-sm">
-                            <HiOutlineShieldCheck className="w-4 h-4" />
-                            Authenticated
-                          </Badge>
+                          <Separator className="bg-emerald-200" />
+                          <div className="text-center py-2">
+                            <p className="text-xs uppercase tracking-[0.15em] text-emerald-600 font-medium mb-2">This certifies that</p>
+                            <p className="text-xl font-semibold text-emerald-900 font-serif">{verifyResult.name}</p>
+                            <p className="text-sm text-emerald-700 mt-1">successfully participated in</p>
+                            <p className="text-base font-medium text-emerald-800 mt-0.5">{verifyResult.event}</p>
+                            <p className="text-sm text-emerald-700 mt-1">
+                              on {new Date(verifyResult.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                            </p>
+                          </div>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="bg-white/70 rounded-lg p-3">
+                              <p className="text-xs text-emerald-600 font-medium uppercase tracking-wider mb-0.5">Certificate ID</p>
+                              <p className="font-mono text-sm font-semibold text-emerald-900">{verifyResult.certificate_id}</p>
+                            </div>
+                            <div className="bg-white/70 rounded-lg p-3">
+                              <p className="text-xs text-emerald-600 font-medium uppercase tracking-wider mb-0.5">Issued By</p>
+                              <p className="text-sm font-semibold text-emerald-900">VeloDB & Lyzr</p>
+                            </div>
+                          </div>
+                          {verifyResult.status === 'success' && verifyResult.appreciation_message && (
+                            <div className="bg-white/70 rounded-lg p-3 mt-2">
+                              <p className="text-xs text-emerald-600 font-medium uppercase tracking-wider mb-1.5">Appreciation Message</p>
+                              <p className="text-sm text-emerald-900 leading-relaxed italic">&ldquo;{verifyResult.appreciation_message}&rdquo;</p>
+                            </div>
+                          )}
+                          <div className="flex justify-center pt-1">
+                            <Badge className="bg-emerald-600 text-white hover:bg-emerald-600 gap-1.5 px-4 py-1.5 text-sm">
+                              <HiOutlineShieldCheck className="w-4 h-4" />
+                              Authenticated
+                            </Badge>
+                          </div>
                         </div>
                       </div>
                     )}
